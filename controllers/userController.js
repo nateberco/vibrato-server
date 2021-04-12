@@ -73,21 +73,25 @@ router.post('/login', function(req,res){
 
 
  /**********************
- * USER - APPEND ADDRESS
+ * USER - UPDATE & APPEND ADDRESS
  ***********************/
 
-  router.put("/address", validateSession, function (req, res) {
+  router.put("/update/:id", validateSession, function (req, res) {
     const updateUserAddress = {
-      address: req.body.address
+      address: req.body.address,
+      latitude: req.body.latitude,
+      longitude: req.body.longitude,
+      role: req.body.role,
+      social: req.body.social
     };
-    const query = { where: { id: req.params.id, owner: req.user.id } };
+    const query = { where: { id: user.id, 
+        
+    } };
   
     User.update(updateUserAddress, query)
-      .then((address) => res.status(200).json(address))
+      .then((user) => res.status(200).json(user))
       .catch((err) => res.status(500).json({ error: err }));
   });
-
-
 
 
 
