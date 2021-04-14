@@ -20,10 +20,12 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      userID: {
-        type: DataTypes.INTEGER,
-      },
+
     });
+
     return Listing;
   };
+
+
+
   

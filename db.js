@@ -13,4 +13,10 @@ sequelize.authenticate().then(
     }
 );
 
+User = sequelize.import('./models/user');
+Listing = sequelize.import('./models/listing');
+
+User.hasMany(Listing);
+Listing.belongsTo(User);
+
 module.exports = sequelize;

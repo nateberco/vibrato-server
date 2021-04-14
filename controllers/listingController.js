@@ -2,15 +2,10 @@ let express = require('express');
 let router = express.Router();
 // const cloudinary = require('cloudinary');
 
-
 let validateSession = require("../middleware/validateSession");
+let validateAdmin = require("../middleware/validateAdmin");
 const Listing = require("../db").import("../models/listing");
 
-
-
-router.get('/practice', function(req, res) {
-    res.send('howdy there we practiceen')
-})
 
 /*********************
  * LISTING - PUBLISH *
@@ -22,7 +17,7 @@ router.post("/publish", validateSession, (req, res) => {
         photoURL: req.body.photoURL,
         category: req.body.category,
         keywords: req.body.keywords,
-        userID: req.params.id
+        userId: req.user.id
     };
 
     Listing.create(listingForm)
@@ -34,7 +29,7 @@ router.post("/publish", validateSession, (req, res) => {
 /*********************
  * LISTING - EDIT *
  ********************/
- router.put("/edit/:id",  function (req, res) {
+ router.put("/edit/:id",  validateSession, function (req, res) {
     res.send('howdy there we made it')
     const updateListingForm = {
         title: req.body.title,
@@ -42,14 +37,54 @@ router.post("/publish", validateSession, (req, res) => {
         photoURL: req.body.photoURL,
         category: req.body.category,
         keywords: req.body.keywords,
+        userID: req.user.id
     };
-    const query = { where: { id: req.params.id, userID: req.user.id } };
+    const query = { where: {  id: req.params.id,  }, 
+    include: "user",
+      };
   
     Listing.update(updateListingForm, query)
       .then((listing) => res.status(200).json(listing))
       .catch((err) => res.status(500).json({ error: err }));
   });
 
+  /******************************
+ * LISTING - GET ALL for a USER *
+ ********************************/
+
+  router.get("/viewAll", validateSession, function (req, res) {
+    const query = {
+        where: { userId: req.user.id },
+        include: "user",
+      };
+    Listing.findAll(query)
+      .then((listing) => res.status(200).json(listing))
+      .catch((err) => res.status(500).json({ error: err }));
+  });
+
+/*********************
+ * LISTING - DELETE (user) **
+***********************/
+
+router.delete("/delete/:id", validateSession,  function (req, res) {
+    const query = { where: { id: req.params.id, owner: req.user.id } };
+  
+    Listing.destroy(query)
+      .then(() => res.status(200).json({ message: "Your listing has been removed." }))
+      .catch((err) => res.status(500).json({ error: err }));
+  });
+
+/*********************
+ * LISTING - DELETE (admin) **
+***********************/
+
+router.delete("/deleteAdmin/:id", validateSession, validateAdmin,  function (req, res) {
+    const query = { where: { id: req.params.id } };
+  
+    Listing.destroy(query)
+      .then(() => res.status(200).json({ message: "Listing has been deleted (Admin)." }))
+      .catch((err) => res.status(500).json({ error: err }));
+  });
 
 
 module.exports = router;

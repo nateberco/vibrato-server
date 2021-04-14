@@ -19,7 +19,8 @@ http://localhost:3000/user/login - POST
 router.post('/register', function(req,res){
     User.create({
         email: req.body.email,
-        password: bcrypt.hashSync(req.body.password, 10) 
+        password: bcrypt.hashSync(req.body.password, 10), 
+        role: "User",
     })
 
     .then( 
@@ -76,20 +77,23 @@ router.post('/login', function(req,res){
  * USER - UPDATE & APPEND ADDRESS
  ***********************/
 
-  router.put("/update/:id", validateSession, function (req, res) {
+  router.put("/update", validateSession, function (req, res) {
     const updateUserAddress = {
+      email: req.body.email,
       address: req.body.address,
       latitude: req.body.latitude,
       longitude: req.body.longitude,
-      role: req.body.role,
       social: req.body.social
     };
-    const query = { where: { id: user.id, 
+    const query = { where: { id: req.user.id, 
         
     } };
   
     User.update(updateUserAddress, query)
-      .then((user) => res.status(200).json(user))
+      .then((user) => res.status(200).json({
+        user: user,
+        message: "User information has been successfully updated!",
+    }))
       .catch((err) => res.status(500).json({ error: err }));
   });
 

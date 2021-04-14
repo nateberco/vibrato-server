@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         role: {
             type: DataTypes.STRING,
-            allowNull: true  
+            allowNull: false
         },
         social: {
             type: DataTypes.STRING,
