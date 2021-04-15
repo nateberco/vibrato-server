@@ -1,4 +1,4 @@
-module.exports = {
-    User: require("./usercontroller"),
-    Listing: require("./listingController"),
-  };
+// module.exports = {
+//     User: require("./usercontroller"),
+//     Listing: require("./listingController"),
+//   };

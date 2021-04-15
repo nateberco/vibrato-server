@@ -13,7 +13,8 @@ router.post("/send/:id", validateSession, (req, res) => {
     const sendMessage = {
         content: req.body.content,
         senderID: req.user.id,
-        recipientID: req.params.id
+        recipientID: req.params.id,
+        hasBeenViewed: false
     };
 
     Message.create(sendMessage)
@@ -22,12 +23,12 @@ router.post("/send/:id", validateSession, (req, res) => {
 });
 
 /*********************
- * Message - View *
+ * Message - View All for Recipient *
 ********************/
 
-router.get("/view/:id", validateSession, function (req, res) {
+router.get("/viewAsRecipient", validateSession, function (req, res) {
     const query = {
-      where: { id: req.params.id }
+      where: { recipientID: req.user.id}  // ||OR senderID ??
     };
     Message.findAll(query)
       .then((message) => res.status(200).json(message))
@@ -35,3 +36,19 @@ router.get("/view/:id", validateSession, function (req, res) {
   });
 
   module.exports = router;
+
+
+  /*********************
+ * Message - View All for Sender *
+********************/
+
+router.get("/viewAsSender", validateSession, function (req, res) {
+  const query = {
+    where: { senderID: req.user.id}  // ||OR senderID ??
+  };
+  Message.findAll(query)
+    .then((message) => res.status(200).json(message))
+    .catch((err) => res.status(500).json({ error: err }));
+});
+
+module.exports = router;

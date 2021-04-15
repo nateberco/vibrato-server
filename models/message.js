@@ -12,6 +12,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING(2000), //to limit the data
         allowNull: true,
       },
+      hasBeenViewed: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false
+      }
     });
 
     return Message;

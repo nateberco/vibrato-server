@@ -9,7 +9,8 @@ const Listing = require("../db").import("../models/listing");
 
 /*********************
  * LISTING - PUBLISH *
- ********************/
+ * ********************/
+
 router.post("/publish", validateSession, (req, res) => {
     const listingForm = {
         title: req.body.title,
@@ -44,23 +45,46 @@ router.post("/publish", validateSession, (req, res) => {
       };
   
     Listing.update(updateListingForm, query)
-      .then((listing) => res.status(200).json(listing))
+      .then((listings) => res.status(200).json(listings))
       .catch((err) => res.status(500).json({ error: err }));
   });
 
-  /******************************
- * LISTING - GET ALL for a USER *
- ********************************/
+/*********************
+ * PRODUCT - GET ALL
+ ********************/
+ router.get("/", (req, res) => {
+  Listing.findAll()
+    .then((listings) => res.status(200).json(listings))
+    .catch((err) => res.status(500).json({ error: err }));
+});
 
-  router.get("/viewAll", validateSession, function (req, res) {
+
+/******************************
+* LISTING - GET ALL for a PUBLISHER *
+********************************/
+
+  router.get("/viewShop/:id", function (req, res) {
     const query = {
-        where: { userId: req.user.id },
+        where: { userId: req.params.id},
         include: "user",
       };
     Listing.findAll(query)
       .then((listing) => res.status(200).json(listing))
       .catch((err) => res.status(500).json({ error: err }));
   });
+
+/************************
+ * PRODUCT - GET BY TITLE
+ ***********************/
+router.get("/:name", function (req, res) {
+  let name = req.params.title;
+
+  Product.findAll({
+    where: { title: title },
+  })
+    .then((listings) => res.status(200).json(listings))
+    .catch((err) => res.status(500).json({ error: err }));
+});
 
 /*********************
  * LISTING - DELETE (user) **
