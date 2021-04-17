@@ -15,8 +15,18 @@ sequelize.authenticate().then(
 
 User = sequelize.import('./models/user');
 Listing = sequelize.import('./models/listing');
+Message = sequelize.import('./models/message');
+Conversation = sequelize.import('./models/conversation');
 
 User.hasMany(Listing);
 Listing.belongsTo(User);
+
+Conversation.hasMany(Message);
+Message.belongsTo(Conversation);
+
+// Conversation.associate = (models) => {
+//     Conversations.hasMany(models.Message); 
+//     models.Message.belongsTo(Conversation); 
+//     };
 
 module.exports = sequelize;

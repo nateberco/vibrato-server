@@ -1,13 +1,13 @@
-const User = require("./user");
-const Listing = require("./listing");
+// const User = require("./user");
+// const Listing = require("./listing");
 
-// Setup Associations
+// // Setup Associations
 
-User.hasMany(Listing);
-Listing.belongsTo(User);
+// User.hasMany(Listing);
+// Listing.belongsTo(User);
 
 
-module.exports = {
-  User,
-  Listing,
-};
+// module.exports = {
+//   User,
+//   Listing,
+// };

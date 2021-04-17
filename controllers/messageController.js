@@ -1,8 +1,9 @@
 let express = require('express');
 let router = express.Router();
-// const cloudinary = require('cloudinary');
 
+let sequelize = require("sequelize");
 let validateSession = require("../middleware/validateSession");
+const Conversation = require('../db').import('../models/conversation');
 const Message = require("../db").import("../models/message");
 
 
@@ -10,45 +11,78 @@ const Message = require("../db").import("../models/message");
  * Message - Send *
  ********************/
 router.post("/send/:id", validateSession, (req, res) => {
-    const sendMessage = {
-        content: req.body.content,
-        senderID: req.user.id,
-        recipientID: req.params.id,
-        hasBeenViewed: false
+  // find all in convo table -- if length > 0 - dont create conversation, if not, create convo
+    
+  const Op = sequelize.Op 
+  const queryConversation = { 
+    where: { [Op.or]: [{ senderId: req.user.id }, { recipientId: req.user.id }] }
     };
-
-    Message.create(sendMessage)
-        .then((message) => res.status(200).json(message))
-        .catch((err) => res.status(500).json({ error: err }));
+    Conversation.findOne(queryConversation)
+      .then((conversationRow) => {
+        // res.json(conversationRow);
+        if(conversationRow) {
+          const sendMessage = {
+            conversationGroupId: conversationRow.id,
+            ownerId: req.user.id,
+            content: req.body.content,
+            conversationId: conversationRow.id
+          }
+          Message.create(sendMessage)
+            .then((messageRow) => {
+              const responseObject = {
+                conversation: conversationRow,
+                content: messageRow,
+              }
+              res.json(responseObject);
+            })
+            
+        } else {
+          Conversation.create({
+            recipientId: req.params.id,
+            senderId: req.user.id,
+          })
+          .then(conversationRow => {
+            const sendMessage = {
+              conversationGroupId: conversationRow.id,
+              ownerId: req.user.id,
+              content: req.body.content,
+              conversationId: conversationRow.id
+            }
+            Message.create(sendMessage)
+              .then((messageRow) => {
+                const responseObject = {
+                  conversation: conversationRow,
+                  content: messageRow,
+                }
+                res.json(responseObject);
+              })
+          })
+        }
+      })
+      .catch((err) => res.status(500).json({ error: err }));
 });
+
 
 /*********************
- * Message - View All for Recipient *
-********************/
+ * Message - Get Conversation List *
+ ********************/
+ router.get("/viewConversationList", validateSession, (req, res) => {
+    
+  const Op = sequelize.Op 
+  const queryConversation = { 
+    where: { [Op.or]: [{ senderId: req.user.id }, { recipientId: req.user.id }] },
+    // MUST INCLUDE MESSAGE somehow --> either use "include" or do a separate query for Messages to display that as well!?
+    }
+  
+    Conversation.findAll(
+      queryConversation
+    )
+    .then((conversationRows) => {
+      res.json(conversationRows);
 
-router.get("/viewAsRecipient", validateSession, function (req, res) {
-    const query = {
-      where: { recipientID: req.user.id}  // ||OR senderID ??
-    };
-    Message.findAll(query)
-      .then((message) => res.status(200).json(message))
-      .catch((err) => res.status(500).json({ error: err }));
-  });
-
-  module.exports = router;
+    })
+ })
 
 
-  /*********************
- * Message - View All for Sender *
-********************/
-
-router.get("/viewAsSender", validateSession, function (req, res) {
-  const query = {
-    where: { senderID: req.user.id}  // ||OR senderID ??
-  };
-  Message.findAll(query)
-    .then((message) => res.status(200).json(message))
-    .catch((err) => res.status(500).json({ error: err }));
-});
 
 module.exports = router;

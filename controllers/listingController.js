@@ -38,7 +38,7 @@ router.post("/publish", validateSession, (req, res) => {
         photoURL: req.body.photoURL,
         category: req.body.category,
         keywords: req.body.keywords,
-        userID: req.user.id
+        userId: req.user.id
     };
     const query = { where: {  id: req.params.id,  }, 
     include: "user",
