@@ -15,7 +15,17 @@ router.post("/send/:id", validateSession, (req, res) => {
     
   const Op = sequelize.Op 
   const queryConversation = { 
-    where: { [Op.or]: [{ senderId: req.user.id }, { recipientId: req.user.id }] }
+    // [Op.or]: [{ senderId: req.user.id }, { recipientId: req.user.id }]
+    where: { [Op.or]: [
+            {[Op.and] : [
+            { senderId: req.user.id },
+            { recipientId: req.params.id }
+            ]},
+            {[Op.and] : [
+            { recipientId: req.user.id },
+            { senderId: req.params.id }
+      ]}
+    ]}
     };
     Conversation.findOne(queryConversation)
       .then((conversationRow) => {
@@ -70,7 +80,9 @@ router.post("/send/:id", validateSession, (req, res) => {
     
   const Op = sequelize.Op 
   const queryConversation = { 
-    where: { [Op.or]: [{ senderId: req.user.id }, { recipientId: req.user.id }] },
+    where: {
+      [Op.or]: [{ senderId: req.user.id }, { recipientId: req.user.id }]
+    }
     // MUST INCLUDE MESSAGE somehow --> either use "include" or do a separate query for Messages to display that as well!?
     }
   
@@ -78,11 +90,57 @@ router.post("/send/:id", validateSession, (req, res) => {
       queryConversation
     )
     .then((conversationRows) => {
-      res.json(conversationRows);
-
+      // res.json(conversationRows);
+      if(conversationRows.length > 0) {
+        let conversationGroupId = [];
+        let userArray = [];
+        
+        let userIdArray = [{ id: req.user.id }];
+        conversationRows.forEach((conversationRow) => {
+          if(conversationRow.senderId == req.user.id) {
+            userIdArray.push({ id: conversationRow.recipientId })
+          } else {
+            userIdArray.push( { id: conversationRow.senderId })
+          } 
+          conversationGroupId.push( { id: conversationRow.id} )
+        })
+        let queryUser = {
+          where: { [Op.or]: userIdArray }
+        } 
+        User.findAll(queryUser)
+        .then(users => {
+          // res.json({user: users, conversation: conversationRows})
+          userArray = users;
+        }) 
+        console.log(conversationGroupId)
+        let queryMessages = {
+          where: { [Op.or]: conversationGroupId }
+        } 
+        Message.findAll(queryMessages)
+        .then(messages => {
+          res.json( {user: userArray, conversation: conversationRows, messages: messages } )
+        }) 
+      } else {
+        res.json({ users: [], conversation: [], message: 'No Conversations Found!' })
+      }
     })
+    .catch((err) => res.status(500).json({ error: err }));
  })
 
-
+ /*********************
+ * Message - Get Message List *
+ ********************/
+  // router.get("/viewMessages/:conversationGroupId", validateSession, (req, res) => {
+    
+  //   const Op = sequelize.Op 
+  //   const queryConversationGroupId = { 
+  //     where: { conversationGroupId: req.params.conversationGroupId }
+        
+  //     }
+  //     Message.findAll(queryConversationGroupId)
+  //     .then(messages => {
+  //       res.json({ messages: messages})
+  //     })
+  //   })
 
 module.exports = router;
