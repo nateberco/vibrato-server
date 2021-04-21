@@ -6,11 +6,10 @@ let sequelize = require('./db');
 let listing = require("./controllers/listingController");
 let user = require('./controllers/userController');
 let message = require('./controllers/messageController');
-let conversation =
 
 sequelize.sync();
 // sequelize.sync({force:true}) //to delete rows in pgAdmin
-// app.use(require('./middleware/headers'));
+app.use(require('./middleware/headers'));
 
 app.use(express.json());
 

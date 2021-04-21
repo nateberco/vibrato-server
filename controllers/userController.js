@@ -10,6 +10,8 @@ const bcrypt = require('bcryptjs');
 
 http://localhost:3000/user/register - POST
 http://localhost:3000/user/login - POST
+http://localhost:3000/user/update - PUT
+
 
 */
 
