@@ -20,14 +20,18 @@ http://localhost:3000/user/update - PUT
  ****************/
 router.post('/register', function(req,res){
     User.create({
-        email: req.body.email,
+        username: req.body.username,
         password: bcrypt.hashSync(req.body.password, 10), 
         role: "User",
     })
 
     .then( 
         function createSuccess(user) {
-            let token = jwt.sign({id: user.id, email: user.email}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
+            let token = jwt.sign({id: user.id, 
+                // username: user.username
+            }, 
+                process.env.JWT_SECRET, 
+                {expiresIn: 60 * 60 * 24});
 
         res.status(200).json({
             user: user,
@@ -46,7 +50,7 @@ router.post('/register', function(req,res){
 router.post('/login', function(req,res){
     User.findOne({
         where: {
-            email: req.body.email
+            username: req.body.username
         }
     })
 
@@ -81,7 +85,7 @@ router.post('/login', function(req,res){
 
   router.put("/update", validateSession, function (req, res) {
     const updateUserAddress = {
-      email: req.body.email,
+      username: req.body.username,
       address: req.body.address,
       latitude: req.body.latitude,
       longitude: req.body.longitude,

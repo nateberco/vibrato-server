@@ -8,7 +8,11 @@ let user = require('./controllers/userController');
 let message = require('./controllers/messageController');
 
 sequelize.sync();
+
+/* ******************************************************* */
 // sequelize.sync({force:true}) //to delete rows in pgAdmin
+/* ******************************************************* */
+
 app.use(require('./middleware/headers'));
 
 app.use(express.json());
