@@ -63,9 +63,9 @@ router.post("/publish", validateSession, (req, res) => {
 * LISTING - GET ALL for a PUBLISHER *
 ********************************/
 
-  router.get("/viewShop/:id", function (req, res) {
+  router.get("/viewShop", validateSession, function (req, res) {
     const query = {
-        where: { userId: req.params.id},
+        where: { userId: req.user.id},
         include: "user",
       };
     Listing.findAll(query)
