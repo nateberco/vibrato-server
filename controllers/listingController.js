@@ -91,7 +91,7 @@ router.get("/:name", function (req, res) {
 ***********************/
 
 router.delete("/delete/:id", validateSession,  function (req, res) {
-    const query = { where: { id: req.params.id, owner: req.user.id } };
+    const query = { where: { id: req.params.id, userId: req.user.id } };
   
     Listing.destroy(query)
       .then(() => res.status(200).json({ message: "Your listing has been removed." }))

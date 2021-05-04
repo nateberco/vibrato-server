@@ -94,14 +94,21 @@ router.post("/send/:id", validateSession, (req, res) => {
       if(conversationRows.length > 0) {
         let conversationGroupId = [];
         let userArray = [];
+        let replyTo = ""
+        let newConversationArray = [];
         
         let userIdArray = [{ id: req.user.id }];
-        conversationRows.forEach((conversationRow) => {
+        conversationRows.forEach((conversationRow, index) => {
+        
+          
           if(conversationRow.senderId == req.user.id) {
             userIdArray.push({ id: conversationRow.recipientId })
+            replyTo = conversationRow.recipientId
           } else {
             userIdArray.push( { id: conversationRow.senderId })
+            replyTo = conversationRow.senderId
           } 
+          newConversationArray.push(replyTo)
           conversationGroupId.push( { id: conversationRow.id} )
         })
         let queryUser = {
@@ -118,7 +125,7 @@ router.post("/send/:id", validateSession, (req, res) => {
         } 
         Message.findAll(queryMessages)
         .then(messages => {
-          res.json( {user: userArray, conversation: conversationRows, messages: messages } )
+          res.json( {user: userArray, conversation: conversationRows, messages: messages, replyTo: newConversationArray } )
         }) 
       } else {
         res.json({ users: [], conversation: [], message: 'No Conversations Found!' })
@@ -130,17 +137,17 @@ router.post("/send/:id", validateSession, (req, res) => {
  /*********************
  * Message - Get Message List *
  ********************/
-  // router.get("/viewMessages/:conversationGroupId", validateSession, (req, res) => {
+  router.get("/viewMessages/:conversationGroupId", validateSession, (req, res) => {
     
-  //   const Op = sequelize.Op 
-  //   const queryConversationGroupId = { 
-  //     where: { conversationGroupId: req.params.conversationGroupId }
+    const Op = sequelize.Op 
+    const queryConversationGroupId = { 
+      where: { conversationGroupId: req.params.conversationGroupId }
         
-  //     }
-  //     Message.findAll(queryConversationGroupId)
-  //     .then(messages => {
-  //       res.json({ messages: messages})
-  //     })
-  //   })
+      }
+      Message.findAll(queryConversationGroupId)
+      .then(messages => {
+        res.json({ messages: messages, userId: req.user.id})
+      })
+    })
 
 module.exports = router;

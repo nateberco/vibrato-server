@@ -27,16 +27,13 @@ router.post('/register', function(req,res){
 
     .then( 
         function createSuccess(user) {
-            let token = jwt.sign({id: user.id, 
-                // username: user.username
-            }, 
-                process.env.JWT_SECRET, 
-                {expiresIn: 60 * 60 * 24});
-
+            let token = jwt.sign({id: user.id}, "password", {expiresIn: 60 * 60 * 24});
+            
         res.status(200).json({
             user: user,
             message: "New user has been created.",
-            sessionToken: token
+            sessionToken: token, 
+            username: user.username
         });
     })
 
@@ -60,11 +57,14 @@ router.post('/login', function(req,res){
                 if(matches){
                     
                     let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
+                    let username = req.body.username
 
                     res.status(200).json({
                         user: user,
                         message: "User is logged in.",
-                        sessionToken: token
+                        sessionToken: token,
+                        username: user.username
+
                     });
                 } else {
                     res.status(502).send({error: "Login failed" });
