@@ -27,7 +27,7 @@ router.post('/register', function(req,res){
 
     .then( 
         function createSuccess(user) {
-            let token = jwt.sign({id: user.id}, "password", {expiresIn: 60 * 60 * 24});
+            let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
             
         res.status(200).json({
             user: user,
@@ -57,7 +57,7 @@ router.post('/login', function(req,res){
                 if(matches){
                     
                     let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 60 * 60 * 24});
-                    let username = req.body.username
+                    // let username = req.body.username
 
                     res.status(200).json({
                         user: user,
