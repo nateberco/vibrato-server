@@ -151,3 +151,15 @@ router.post("/send/:id", validateSession, (req, res) => {
     })
 
 module.exports = router;
+
+/**************************
+ * CONVERSATION - DELETE **
+***************************/
+
+router.delete("/delete/:id", validateSession,  function (req, res) {
+  const query = { where: { id: req.params.id, } };
+
+  Conversation.destroy(query)
+    .then(() => res.status(200).json({ message: "Conversation has been deleted" }))
+    .catch((err) => res.status(500).json({ error: err }));
+});
