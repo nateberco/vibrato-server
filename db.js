@@ -7,12 +7,13 @@ const Sequelize = require('sequelize');
 const sequelize = new Sequelize(process.env.DATABASE_URL, {
     dialect: 'postgres',
     //comment below lines to test locally
-    // dialectOptions: {
-    //     ssl: {
-    //         require: true,
-    //         rejectUnauthorized: false,
-    //     }
-    // }
+
+    dialectOptions: {
+        ssl: {
+            require: true,
+            rejectUnauthorized: false,
+        }
+    }
 })
 
 sequelize.authenticate().then(
